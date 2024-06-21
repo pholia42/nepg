@@ -1,22 +1,41 @@
 <template>
   <div class="feedback-details-container">
-    <el-card class="details-card">
+    <el-header class="full-header">
+      <div class="header-content">
+        <el-icon @click="goBack" class="logout-icon"><ArrowLeft /></el-icon>
+        <span class="header-text">反馈任务详细信息</span>
+      </div>
+    </el-header>
+   <div class="list-container">
+      <div v-for="(group, index) in groupedFeedbackList" :key="index" class="group-container">
+        <div class="group-header">
+          <span>{{ group.province }} {{ group.city }} {{ group.date }}</span>
+        </div>
+        <el-table :data="group.locations" style="width: 100%">
+          <el-table-column label="地址" prop="address" align="center" />
+          <el-table-column align="center">
+            <template #default="scope">
+              <el-button @click="goCheck(scope.row.task_id)" type="primary" size="small">去检测</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </div>
+	<div class="form-container">
+	  <el-table :data="formTableData" border style="width: 100%">
+	    <el-table-column align="center" width="150">
+	      <template #default="scope">
+	        <span>{{ scope.row.label }}</span>
+	      </template>
+	    </el-table-column>
+	    <el-table-column align="center">
+	      <template #default="scope">
+	        <span>{{ scope.row.value }}</span>
+	      </template>
+	    </el-table-column>
+	  </el-table>
+	</div>
       <el-form :model="form" ref="feedbackForm" label-width="120px" status-icon>
-        <el-form-item label="反馈用户">
-          <el-input v-model="form.user" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="网格">
-          <el-input v-model="form.grid" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="详细地址">
-          <el-input v-model="form.address" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="预估等级">
-          <el-input v-model="form.estimatedLevel" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="信息描述">
-          <el-input v-model="form.description" readonly></el-input>
-        </el-form-item>
         <el-form-item label="SO₂浓度">
           <el-input v-model="form.so2" placeholder="请输入SO₂浓度" suffix="ug/m³"></el-input>
         </el-form-item>
@@ -31,14 +50,15 @@
         </div>
         <el-button type="primary" @click="submitData">提交实测数据</el-button>
       </el-form>
-    </el-card>
   </div>
 </template>
 
 <script setup>
 import { reactive, ref, computed } from 'vue';
 import { ElCard, ElForm, ElFormItem, ElInput, ElButton, ElMessage } from 'element-plus';
-import axios from 'axios';
+import { ArrowLeft } from '@element-plus/icons-vue';
+import axiosInstance from '@/axios';
+import { useRouter, useRoute } from 'vue-router';
 
 const form = reactive({
   user: '诸葛亮 13659877845',
@@ -50,9 +70,17 @@ const form = reactive({
   co: '',
   pm25: ''
 });
+const router = useRouter();
+
+const formTableData = reactive([
+  { label: '反馈用户', value: form.user },
+  { label: '网格', value: form.grid },
+  { label: '详细地址', value: form.address },
+  { label: '预估等级', value: form.estimatedLevel },
+  { label: '信息描述', value: form.description }
+]);
 
 const aqiLevel = computed(() => {
-  // This logic can be adjusted based on actual AQI calculation
   const so2 = parseFloat(form.so2) || 0;
   const co = parseFloat(form.co) || 0;
   const pm25 = parseFloat(form.pm25) || 0;
@@ -78,7 +106,7 @@ const aqiClass = computed(() => {
 
 const submitData = async () => {
   try {
-    const response = await axios.post(' http://wftr4y.natappfree.cc/ackman/submitAck', form);
+    const response = await axiosInstance.post('/ackman/submitAck', form);
     if (response.status === 200 && response.data.success) {
       ElMessage.success('数据提交成功');
     } else {
@@ -89,22 +117,101 @@ const submitData = async () => {
     ElMessage.error('提交失败，请稍后重试');
   }
 };
+
+const goBack = () => {
+  router.push('/feedbackList');
+};
+
 </script>
 
 <style scoped>
 .feedback-details-container {
+  background: url('@/assets/background.png') no-repeat center center;
+  background-size: cover;
+  height: 100vh;
+  width: 100vw; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   padding: 20px;
+  box-sizing: border-box;
+}
+
+.full-header {
+  width: 100%;
+  height: 60px; /* 可以根据需要调整高度 */
+  background: rgba(255, 255, 255, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(to top, #e0f7fa, #80deea);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
-.details-card {
-  width: 400px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.header-content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-text {
+  font-size: 18px;
+  color: #333;
+  font-weight: bold;
+  margin-left: 20px;
+}
+
+.logout-icon {
+  color: #333;
+  cursor: pointer;
+  position: absolute;
+  left: 20px;
+}
+
+.form-container {
+  margin-top: 80px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px;
+  margin-top: 100px;
+}
+
+.el-table th, .el-table td {
+  text-align: center;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.el-table .el-table__header-wrapper {
+  display: none; /* 隐藏表头 */
+}
+
+.el-form-item {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.el-input__inner {
+  border-radius: 5px;
+  background-color: transparent; 
+  border: none; 
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-left: 10px;
+  font-size: 0.8rem;
 }
 
 .aqi-warning {
@@ -125,26 +232,18 @@ const submitData = async () => {
   color: green;
 }
 
-.el-form-item {
-  margin-bottom: 20px;
-}
-
-.el-input__inner {
-  border-radius: 5px;
-}
-
 .el-button {
   width: 100%;
   border-radius: 5px;
 }
 
 .el-button--primary {
-  background-color: #009688;
-  border-color: #009688;
+  background-color: #e74c3c;
+  border-color: #e74c3c;
 }
 
 .el-button--primary:hover {
-  background-color: #00796b;
-  border-color: #00796b;
+  background-color: #c0392b;
+  border-color: #c0392b;
 }
 </style>
