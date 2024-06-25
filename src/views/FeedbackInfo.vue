@@ -15,7 +15,7 @@
           <el-table-column label="地址" prop="address" align="center" />
           <el-table-column align="center">
             <template #default="scope">
-              <el-button @click="goCheck(scope.row.task_id)" type="primary" size="small">去检测</el-button>
+              <el-button @click="goCheck(scope.row.id)" type="primary" size="small">去检测</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -68,7 +68,8 @@ const form = reactive({
   description: '空气浑浊，呼吸不畅',
   so2: '',
   co: '',
-  pm25: ''
+  pm25: '',
+  ackId: useRoute().params.taskId // 从路由参数中获取taskId作为ackId
 });
 const router = useRouter();
 
@@ -106,7 +107,17 @@ const aqiClass = computed(() => {
 
 const submitData = async () => {
   try {
-    const response = await axiosInstance.post('/ackman/submitAck', form);
+    const response = await axiosInstance.post('/ackman/submitAck', {
+      ackId: form.ackId,
+      so2: parseFloat(form.so2),
+      co2: parseFloat(form.co),
+      pm250: parseFloat(form.pm25),
+      ackGrade: aqiLevel.value
+    }, {
+      headers: {
+        token: localStorage.getItem('token') // 从localStorage中获取token
+      }
+    });
     if (response.status === 200 && response.data.success) {
       ElMessage.success('数据提交成功');
     } else {

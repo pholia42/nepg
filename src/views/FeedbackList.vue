@@ -13,16 +13,16 @@
       <el-table :data="feedbackList" style="width: 100%">
         <el-table-column label="等级" align="center">
           <template #default="scope">
-            <span :class="'level level-' + scope.row.ack_grade">{{ scope.row.ack_grade }}</span>
+            <span :class="'level level-' + scope.row.ackGrade">{{ scope.row.ackGrade }}</span>
           </template>
         </el-table-column>
         <el-table-column label="省份" prop="province" align="center" />
         <el-table-column label="城市" prop="city" align="center" />
         <el-table-column label="地址" prop="address" align="center" />
-        <el-table-column label="日期" prop="ack_time" align="center" />
+        <el-table-column label="日期" prop="ackTime" align="center" />
         <el-table-column align="center">
           <template #default="scope">
-            <el-button @click="goCheck(scope.row.task_id)" type="primary" size="small">去检测</el-button>
+            <el-button @click="goCheck(scope.row.id)" type="primary" size="small">去检测</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -33,9 +33,8 @@
 <script setup>
 import { reactive, onMounted, inject } from 'vue';
 import axios from 'axios';
-import axiosInstance from '@/axios'; 
 import { useRouter } from 'vue-router';
-import { ElMessage, ElIcon, ElButton } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
 
 const feedbackList = reactive([]); 
@@ -44,8 +43,17 @@ const router = useRouter();
 
 const fetchData = async () => {
   try {
-    const response = await axiosInstance.get('/ackman/queryTaskList', {
-      params: { telId: user.telId },
+	      const token = localStorage.getItem('token');
+	      const telId = localStorage.getItem('telId');
+	      
+	      console.log('请求中的 token:', token); // 调试用
+	      console.log('请求中的 telId:', telId); // 调试用
+	  
+    const response = await axios.get('/ackman/queryTaskList', {
+      params: { telId: telId },
+      headers: {
+        token: `${token}`
+      }
     });
     if (response.data.success) {
       feedbackList.push(...response.data.data);
@@ -82,7 +90,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* 修改为从上到下排列 */
+  justify-content: flex-start;
   padding: 20px;
   box-sizing: border-box;
 }
@@ -136,6 +144,8 @@ onMounted(() => {
 }
 
 .list-container {
+  height: 500px;
+  font-size: 14px; 
   width: 100%;
   max-width: 800px;
   background: rgba(255, 255, 255, 0.9);
@@ -143,7 +153,8 @@ onMounted(() => {
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  margin-top: 20px; /* 确保内容不会被固定的头部遮挡 */
+  margin-top: 80px; 
+  overflow-y: auto;
 }
 
 .el-table {

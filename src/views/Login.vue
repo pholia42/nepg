@@ -56,18 +56,21 @@ const onSubmit = async () => {
 
   try {
     console.log('Starting login request with:', form);
-    const response = await axiosInstance.get('/ackman/login', {
+    const response = await axiosInstance.get('/login/ackman', {
       params: {
         telId: form.telId,
         password: form.password
+      },
+      headers: {
+        'Authorization': `Bearer ${process.env.VUE_APP_API_TOKEN}`
       }
     });
-    console.log('Response received:', response);
+
     if (response.status === 200) {
       if (response.data.success) {
-        const token = response.data.token; 
-        const feedbackName = response.data.data.realName; 
-        const telId = response.data.data.telId; 
+        const token = response.data.data.token; 
+        const feedbackName = response.data.data.name; 
+        const telId = response.data.data.id; 
 
         localStorage.setItem('token', token); 
         localStorage.setItem('feedbackName', feedbackName); 
