@@ -34,7 +34,9 @@
         <div class="aqi-warning" :class="aqiClass">
           实测AQI等级: {{ aqiLevel }}
         </div>
-        <el-button type="primary" @click="submitData">提交实测数据</el-button>
+        <div class="button-container">
+          <el-button type="primary" @click="submitData">提交实测数据</el-button>
+        </div>
       </el-form>
     </div>
   </div>
@@ -59,7 +61,7 @@ const form = reactive({
   so2: '',
   co2: '',
   pm25: '',
-  ackId: route.params.taskId // 从路由参数中获取taskId作为ackId
+  ackId: route.params.taskId
 });
 
 const formTableData = ref([
@@ -120,28 +122,41 @@ const submitData = async () => {
   }
 };
 
-
 const aqiLevel = computed(() => {
   const so2 = parseFloat(form.so2) || 0;
   const co = parseFloat(form.co2) || 0;
   const pm25 = parseFloat(form.pm25) || 0;
-  if (so2 > 150 || co > 10 || pm25 > 75) {
-    return '四级 中度污染';
+  
+  // 根据中国的AQI污染级别定义阈值
+  if (so2 > 800 || co > 35 || pm25 > 250) {
+    return '六级污染';
+  } else if (so2 > 475 || co > 28 || pm25 > 150) {
+    return '五级污染';
+  } else if (so2 > 300 || co > 15 || pm25 > 115) {
+    return '四级污染';
+  } else if (so2 > 150 || co > 10 || pm25 > 75) {
+    return '三级污染';
   } else if (so2 > 75 || co > 5 || pm25 > 35) {
-    return '三级 轻度污染';
+    return '二级污染';
   } else {
-    return '二级 良';
+    return '一级污染';
   }
 });
 
 const aqiClass = computed(() => {
   switch (aqiLevel.value) {
-    case '四级 中度污染':
+    case '六级污染':
+      return 'aqi-six';
+    case '五级污染':
+      return 'aqi-five';
+    case '四级污染':
       return 'aqi-four';
-    case '三级 轻度污染':
+    case '三级污染':
       return 'aqi-three';
-    default:
+    case '二级污染':
       return 'aqi-two';
+    default:
+      return 'aqi-one';
   }
 });
 
@@ -206,7 +221,7 @@ const goBack = () => {
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 80px;
+  margin-top: 100px;
   overflow-y: auto;
 }
 
@@ -229,6 +244,11 @@ const goBack = () => {
   border-radius: 5px;
 }
 
+.aqi-one {
+  background-color: #00e400;
+  color: white;
+}
+
 .aqi-two {
   background-color: #66bb6a;
   color: white;
@@ -243,4 +263,21 @@ const goBack = () => {
   background-color: #ef5350;
   color: white;
 }
+
+.aqi-five {
+  background-color: #99004c;
+  color: white;
+}
+
+.aqi-six {
+  background-color: #7e0023;
+  color: white;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
 </style>
