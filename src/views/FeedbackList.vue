@@ -22,7 +22,7 @@
         <el-table-column label="日期" prop="ackTime" align="center" />
         <el-table-column align="center">
           <template #default="scope">
-            <el-button @click="goCheck(scope.row.id)" type="primary" size="small">去检测</el-button>
+            <el-button @click="goCheck(scope.row)" type="primary" size="small">去检测</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -43,11 +43,11 @@ const router = useRouter();
 
 const fetchData = async () => {
   try {
-	      const token = localStorage.getItem('token');
-	      const telId = localStorage.getItem('telId');
+	const token = localStorage.getItem('token');
+	const telId = localStorage.getItem('telId');
 	      
-	      console.log('请求中的 token:', token); // 调试用
-	      console.log('请求中的 telId:', telId); // 调试用
+	console.log('请求中的 token:', token); // 调试用
+	console.log('请求中的 telId:', telId); // 调试用
 	  
     const response = await axios.get('/ackman/queryTaskList', {
       params: { telId: telId },
@@ -68,12 +68,39 @@ const fetchData = async () => {
 
 const goBack = () => {
   localStorage.removeItem('token');
+  localStorage.removeItem('feedbackName');
+  localStorage.removeItem('taskId');
+  localStorage.removeItem('telId');
   ElMessage.success('已退出');
   router.push('/');
 };
 
-const goCheck = (taskId) => {
-  router.push({ name: 'FeedbackInfo', params: { taskId } });
+const goCheck = (task) => {
+  const { id: taskId, feedbackName, feedbackTel, province, city, address, ackGrade, description } = task;
+
+  if (!feedbackName || !feedbackTel|| !province || !city || !address || !ackGrade || !description) {
+    console.error("一个或多个必要的字段缺失。");
+    return;
+  }
+
+  localStorage.setItem('taskId', taskId);
+  localStorage.setItem('feedbackName', feedbackName);
+  localStorage.setItem('feedbackTel', feedbackTel);
+  localStorage.setItem('province', province);
+  localStorage.setItem('city', city);
+  localStorage.setItem('address', address);
+  localStorage.setItem('ackGrade', ackGrade);
+  localStorage.setItem('description', description);
+
+  console.log('taskId:', localStorage.getItem('taskId'));
+  console.log('feedbackName:', localStorage.getItem('feedbackName'));
+  console.log('province:', localStorage.getItem('province'));
+  console.log('city:', localStorage.getItem('city'));
+  console.log('address:', localStorage.getItem('address'));
+  console.log('ackGrade:', localStorage.getItem('ackGrade'));
+  console.log('description:', localStorage.getItem('description'));
+
+  router.push({ name: 'FeedbackInfo', params: { taskId: taskId } });
 };
 
 onMounted(() => {
