@@ -96,7 +96,7 @@ const submitData = async () => {
 
   try {
     const response = await axiosInstance.post('/ackman/submitAck', {
-      ackId: form.ackId,
+      ackId: ackId,
       so2: parseFloat(form.so2),
       co2: parseFloat(form.co2),
       pm250: parseFloat(form.pm25),
@@ -161,7 +161,15 @@ const aqiClass = computed(() => {
 });
 
 const goBack = () => {
-  router.push('/feedbackList');
+  localStorage.removeItem('taskId');
+  localStorage.removeItem('feedbackName');
+  localStorage.removeItem('feedbackTel');
+  localStorage.removeItem('province');
+  localStorage.removeItem('city');
+  localStorage.removeItem('address');
+  localStorage.removeItem('ackGrade');
+  localStorage.removeItem('description');
+  router.push('/feedbackList');  
 };
 
 </script>
