@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, inject } from 'vue';
+import { reactive, onMounted, inject, ref } from 'vue'; // 确保导入了 ref
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
@@ -48,23 +48,20 @@ import { ArrowLeft } from '@element-plus/icons-vue';
 const feedbackList = reactive([]); 
 const user = inject('user');
 const router = useRouter();
+const loading = ref(true); // 添加加载状态
 
 const fetchData = async () => {
   try {
-	const token = localStorage.getItem('token');
-	const telId = localStorage.getItem('telId');
-	      
-	console.log('请求中的 token:', token); // 调试用
-	console.log('请求中的 telId:', telId); // 调试用
-	  
+    const token = localStorage.getItem('token');
+    const telId = localStorage.getItem('telId');
+
     const response = await axios.get('/ackman/queryTaskList', {
       params: { telId: telId },
       headers: {
         token: `${token}`
       }
     });
-	    console.log('服务器响应:', response);
-	
+
     if (response.data.success) {
       feedbackList.push(...response.data.data);
     } else {
@@ -73,6 +70,8 @@ const fetchData = async () => {
   } catch (error) {
     console.error('请求错误:', error);
     ElMessage.error('请求错误，请稍后重试');
+  } finally {
+    loading.value = false; // 数据加载完成后取消加载状态
   }
 };
 
@@ -109,11 +108,10 @@ const getGradeNumber = (grade) => {
   }
 };
 
-
 const goCheck = (task) => {
   const { id: taskId, feedbackName, feedbackTel, province, city, address, ackGrade, description } = task;
 
-  if (!feedbackName || !feedbackTel|| !province || !city || !address || !ackGrade || !description) {
+  if (!feedbackName || !feedbackTel || !province || !city || !address || !ackGrade || !description) {
     console.error("一个或多个必要的字段缺失。");
     return;
   }
@@ -127,14 +125,6 @@ const goCheck = (task) => {
   localStorage.setItem('ackGrade', ackGrade);
   localStorage.setItem('description', description);
 
-  console.log('taskId:', localStorage.getItem('taskId'));
-  console.log('feedbackName:', localStorage.getItem('feedbackName'));
-  console.log('province:', localStorage.getItem('province'));
-  console.log('city:', localStorage.getItem('city'));
-  console.log('address:', localStorage.getItem('address'));
-  console.log('ackGrade:', localStorage.getItem('ackGrade'));
-  console.log('description:', localStorage.getItem('description'));
-
   router.push({ name: 'FeedbackInfo', params: { taskId: taskId } });
 };
 
@@ -142,6 +132,7 @@ onMounted(() => {
   fetchData();
 });
 </script>
+
 
 <style scoped>
 .feedback-list-container {

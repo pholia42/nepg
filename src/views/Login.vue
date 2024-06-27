@@ -50,12 +50,12 @@ const rules = reactive({
 });
 const loginForm = ref(null); 
 
+
 const onSubmit = async () => {
   const isFormValid = await loginForm.value.validate();
   if (!isFormValid) return;
 
   try {
-    console.log('Starting login request with:', form);
     const response = await axiosInstance.get('/login/ackman', {
       params: {
         telId: form.telId,
@@ -66,27 +66,28 @@ const onSubmit = async () => {
       }
     });
 
-    if (response.status === 200) {
-      if (response.data.success) {
-        const token = response.data.data.token; 
-        const feedbackName = response.data.data.name; 
-        const telId = response.data.data.id; 
+    if (response.status === 200 && response.data.success) {
+      const token = response.data.data.token; 
+      const feedbackName = response.data.data.name; 
+      const telId = response.data.data.id; 
 
-        localStorage.setItem('token', token); 
-        localStorage.setItem('feedbackName', feedbackName); 
-        localStorage.setItem('telId', telId); 
-		
-        user.token = token;
-        user.feedbackName = feedbackName;
-        user.telId = telId;
+      localStorage.setItem('token', token); 
+      localStorage.setItem('feedbackName', feedbackName); 
+      localStorage.setItem('telId', telId); 
 
-        ElMessage.success('登录成功')
-        router.push('/feedbackList');
-      } else {
-        ElMessage.error(response.data.errorMsg || '账号或密码不正确');
-      }
+      user.token = token;
+      user.feedbackName = feedbackName;
+      user.telId = telId;
+
+      ElMessage.success('登录成功');
+
+      // 调用数据加载函数
+      await fetchData();
+
+      // 跳转到反馈列表页面
+      router.push('/feedbackList');
     } else {
-      ElMessage.error('请求失败，状态码：' + response.status);
+      ElMessage.error(response.data.errorMsg || '账号或密码不正确');
     }
   } catch (error) {
     console.error('请求错误:', error.response ? error.response.data : error.message);
@@ -94,6 +95,30 @@ const onSubmit = async () => {
   }
 };
 
+// 数据加载函数
+const fetchData = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const telId = localStorage.getItem('telId');
+
+    const response = await axiosInstance.get('/ackman/queryTaskList', {
+      params: { telId: telId },
+      headers: {
+        token: `${token}`
+      }
+    });
+
+    if (response.data.success) {
+      // 在此处理反馈列表数据
+      console.log('数据加载成功', response.data.data);
+    } else {
+      ElMessage.error('获取数据失败：' + response.data.errorMsg);
+    }
+  } catch (error) {
+    console.error('请求错误:', error);
+    ElMessage.error('请求错误，请稍后重试');
+  }
+};
 </script>
 
 <style scoped>
