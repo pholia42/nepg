@@ -13,13 +13,21 @@
       <el-table :data="feedbackList" style="width: 100%">
         <el-table-column label="等级" align="center">
           <template #default="scope">
-            <span :class="'level level-' + scope.row.ackGrade">{{ scope.row.ackGrade }}</span>
+            <span :class="'level ' + mapGradeToClass(scope.row.ackGrade)">
+              {{ getGradeNumber(scope.row.ackGrade) }}
+            </span>
           </template>
         </el-table-column>
-        <el-table-column label="省份" prop="province" align="center" />
-        <el-table-column label="城市" prop="city" align="center" />
-        <el-table-column label="地址" prop="address" align="center" />
-        <el-table-column label="日期" prop="ackTime" align="center" />
+        <el-table-column label="地点" align="center">
+          <template #default="scope">
+            <div>{{ scope.row.province }} {{ scope.row.city }} {{ scope.row.address }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="日期" prop="ackTime" align="center">
+          <template #default="scope">
+            <span>{{ new Date(scope.row.ackTime).toLocaleString() }}</span>
+          </template>
+        </el-table-column>
         <el-table-column align="center">
           <template #default="scope">
             <el-button @click="goCheck(scope.row)" type="primary" size="small">去检测</el-button>
@@ -55,6 +63,8 @@ const fetchData = async () => {
         token: `${token}`
       }
     });
+	    console.log('服务器响应:', response);
+	
     if (response.data.success) {
       feedbackList.push(...response.data.data);
     } else {
@@ -74,6 +84,31 @@ const goBack = () => {
   ElMessage.success('已退出');
   router.push('/');
 };
+
+const mapGradeToClass = (grade) => {
+  switch (grade) {
+    case '一级污染': return 'level-一';
+    case '二级污染': return 'level-二';
+    case '三级污染': return 'level-三';
+    case '四级污染': return 'level-四';
+    case '五级污染': return 'level-五';
+    case '六级污染': return 'level-六';
+    default: return '';
+  }
+};
+
+const getGradeNumber = (grade) => {
+  switch (grade) {
+    case '一级污染': return '一';
+    case '二级污染': return '二';
+    case '三级污染': return '三';
+    case '四级污染': return '四';
+    case '五级污染': return '五';
+    case '六级污染': return '六';
+    default: return '';
+  }
+};
+
 
 const goCheck = (task) => {
   const { id: taskId, feedbackName, feedbackTel, province, city, address, ackGrade, description } = task;
@@ -211,4 +246,12 @@ onMounted(() => {
   top: 20px;
   right: 20px;
 }
+
+.level-一 { background-color: #00e400; }
+.level-二 { background-color: #ffff00; }
+.level-三 { background-color: #ff7e00; }
+.level-四 { background-color: #ff0000; }
+.level-五 { background-color: #99004c; }
+.level-六 { background-color: #7e0023; }
+
 </style>
