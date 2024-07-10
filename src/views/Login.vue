@@ -52,6 +52,12 @@ const loginForm = ref(null);
 
 
 const onSubmit = async () => {
+  // 检查手机号和密码是否为空
+  if (!form.telId.trim() || !form.password.trim()) {
+    ElMessage.error('手机号或密码不能为空');
+    return;
+  }
+	
   const isFormValid = await loginForm.value.validate();
   if (!isFormValid) return;
 

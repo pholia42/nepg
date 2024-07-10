@@ -7,7 +7,7 @@ import axios from 'axios';
 import { provide } from 'vue';
 
 //设置共通的基础URL
-axios.defaults.baseURL = 'http://wftr4y.natappfree.cc/';
+axios.defaults.baseURL = 'http://8.130.91.244:8800/';
 provide('axios',axios);
 </script>
 

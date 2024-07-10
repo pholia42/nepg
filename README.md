@@ -1,4 +1,4 @@
-# neps
+# nepg
 
 ## Project setup
 ```

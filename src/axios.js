@@ -4,7 +4,7 @@ import router from './router/index.js';
 
 // 创建axios实例
 const instance = axios.create({
-  baseURL: 'http://wftr4y.natappfree.cc/', // 你的API基础URL
+  baseURL: 'http://8.130.91.244:8800/', // API基础URL
   timeout: 100000,
 });
 
@@ -30,5 +30,6 @@ instance.interceptors.response.use(response => {
   }
   return Promise.reject(error);
 });
+
 
 export default instance;

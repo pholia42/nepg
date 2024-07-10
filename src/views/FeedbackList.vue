@@ -111,10 +111,10 @@ const getGradeNumber = (grade) => {
 const goCheck = (task) => {
   const { id: taskId, feedbackName, feedbackTel, province, city, address, ackGrade, description } = task;
 
-  if (!feedbackName || !feedbackTel || !province || !city || !address || !ackGrade || !description) {
-    console.error("一个或多个必要的字段缺失。");
-    return;
-  }
+  // if (!feedbackName || !feedbackTel || !province || !city || !address || !ackGrade || !description) {
+  //   console.error("一个或多个必要的字段缺失。");
+  //   return;
+  // }
 
   localStorage.setItem('taskId', taskId);
   localStorage.setItem('feedbackName', feedbackName);
