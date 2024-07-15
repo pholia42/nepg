@@ -45,11 +45,10 @@ const rules = reactive({
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-   // { min: 6, max: 20, message: '密码长度必须在6-20位之间', trigger: 'blur' }
+    { min: 6, max: 20, message: '密码长度必须在6-20位之间', trigger: 'blur' }
   ]
 });
 const loginForm = ref(null); 
-
 
 const onSubmit = async () => {
   // 检查手机号和密码是否为空

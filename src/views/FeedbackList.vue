@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, inject, ref } from 'vue'; // 确保导入了 ref
+import { reactive, onMounted, inject, ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
@@ -48,7 +48,7 @@ import { ArrowLeft } from '@element-plus/icons-vue';
 const feedbackList = reactive([]); 
 const user = inject('user');
 const router = useRouter();
-const loading = ref(true); // 添加加载状态
+const loading = ref(true);
 
 const fetchData = async () => {
   try {
@@ -63,6 +63,10 @@ const fetchData = async () => {
     });
 
     if (response.data.success) {
+      response.data.data.forEach(item => {
+        item.ackGrade = item.ackGrade || '一级污染';
+        item.ackTime = item.ackTime || '2024-07-15T19:00:00';
+      });
       feedbackList.push(...response.data.data);
     } else {
       ElMessage.error('获取数据失败：' + response.data.errorMsg);
@@ -71,7 +75,7 @@ const fetchData = async () => {
     console.error('请求错误:', error);
     ElMessage.error('请求错误，请稍后重试');
   } finally {
-    loading.value = false; // 数据加载完成后取消加载状态
+    loading.value = false;
   }
 };
 
@@ -111,11 +115,11 @@ const getGradeNumber = (grade) => {
 const goCheck = (task) => {
   const { id: taskId, feedbackName, feedbackTel, province, city, address, ackGrade, description } = task;
 
-  // if (!feedbackName || !feedbackTel || !province || !city || !address || !ackGrade || !description) {
-  //   console.error("一个或多个必要的字段缺失。");
-  //   return;
-  // }
-
+  if (!feedbackName || !feedbackTel || !province || !city || !address || !ackGrade || !description) {
+    console.error("一个或多个必要的字段缺失。");
+    return;
+  }
+  
   localStorage.setItem('taskId', taskId);
   localStorage.setItem('feedbackName', feedbackName);
   localStorage.setItem('feedbackTel', feedbackTel);
